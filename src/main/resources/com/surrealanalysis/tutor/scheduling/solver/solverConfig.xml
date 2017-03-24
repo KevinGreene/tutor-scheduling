@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<solver>
+    <!--<environmentMode>FULL_ASSERT</environmentMode>-->
+    <environmentMode>PRODUCTION</environmentMode>
+    <solutionClass>com.surrealanalysis.tutor.scheduling.domain.Schedule</solutionClass>
+    <entityClass>com.surrealanalysis.tutor.scheduling.domain.TutoringSession</entityClass>
+
+    <scoreDirectorFactory>
+        <scoreDrl>com/surrealanalysis/tutor/scheduling/solver/scoreRules.drl</scoreDrl>
+    </scoreDirectorFactory>
+
+    <termination>
+        <!--<secondsSpentLimit>120</secondsSpentLimit>-->
+        <minutesSpentLimit>2</minutesSpentLimit>
+    </termination>
+    <constructionHeuristic/>
+    <localSearch>
+        <acceptor>
+            <entityTabuSize>10</entityTabuSize>
+        </acceptor>
+        <forager>
+            <acceptedCountLimit>1000</acceptedCountLimit>
+        </forager>
+    </localSearch>
+</solver>

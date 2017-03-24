@@ -1,0 +1,63 @@
+package com.surrealanalysis.tutoring
+dialect "java"
+
+import org.optaplanner.core.api.score.buildin.hardsoft.HardSoftScoreHolder;
+import com.surrealanalysis.tutor.scheduling.domain.*
+import java.util.List
+
+global HardSoftScoreHolder scoreHolder;
+
+rule "Tutors should be free when scheduled"
+    when
+        TutoringSession(tutorAssigned, $tutor: tutor, $hour: hour, !tutor.isFreeForHour($hour))
+    then
+        scoreHolder.addHardConstraintMatch(kcontext, -1);
+end
+
+
+rule "Tutors should only be scheduled for a single table"
+    when
+        TutoringSession($id: id, tutorAssigned, $tutor: tutor, $table: table)
+        TutoringSession(id > $id, $tutor == tutor, $table != table)
+    then
+        scoreHolder.addHardConstraintMatch(kcontext, -1);
+end
+
+rule "Students should only be scheduled for a single session"
+    when
+        TutoringSession($id: id, studentAssigned, $student: student, studentAssigned)
+        TutoringSession(id > $id, $student == student)
+    then
+        scoreHolder.addHardConstraintMatch(kcontext, -1);
+end
+
+rule "Students be scheduled for a session"
+    when
+        $student: Student()
+        not TutoringSession(student == $student)
+    then
+        scoreHolder.addHardConstraintMatch(kcontext, -1);
+end
+
+rule "Tutors should have at least 2 students"
+    when
+        $tutor: Tutor()
+        Number(intValue < 2) from accumulate(
+            $assignment:TutoringSession(studentAssigned == true, $tutor == tutor),
+            count($assignment))
+    then
+        scoreHolder.addHardConstraintMatch(kcontext, -1);
+end
+
+rule "Tutors should have a roughly equal number of students"
+    when
+        $tutor: Tutor()
+        $totalStudents: Number(intValue > 0) from accumulate(
+            $assignment:TutoringSession(studentAssigned, $tutor == tutor),
+            count($assignment))
+    then
+        int studentFactor = (int) Math.pow($totalStudents.doubleValue(), 2);
+        scoreHolder.addSoftConstraintMatch(kcontext, -studentFactor);
+end
+
+
