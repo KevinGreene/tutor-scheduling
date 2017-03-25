@@ -59,5 +59,3 @@ rule "Tutors should have a roughly equal number of students"
         int studentFactor = (int) Math.pow($totalStudents.doubleValue(), 2);
         scoreHolder.addSoftConstraintMatch(kcontext, -studentFactor);
 end
-
-

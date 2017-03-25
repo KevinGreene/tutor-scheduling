@@ -67,7 +67,7 @@ class SchedulerSpec extends Specification {
             makeTutor(it, specialties, EmploymentStatus.HALF_TIME_ODD)
         }.flatten()
 
-        def students = (1..40).collect {
+        def students = (1..90).collect {
             makeStudent(it, specialties)
         }
 
