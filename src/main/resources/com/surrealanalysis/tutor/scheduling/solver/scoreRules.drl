@@ -51,11 +51,12 @@ end
 
 rule "Tutors should have a roughly equal number of students"
     when
-        $tutor: Tutor()
+        $tutor: Tutor($status: status)
         $totalStudents: Number(intValue > 0) from accumulate(
             $assignment:TutoringSession(studentAssigned, $tutor == tutor),
             count($assignment))
     then
-        int studentFactor = (int) Math.pow($totalStudents.doubleValue(), 2);
+        int multiplier = $status == EmploymentStatus.FULL_TIME ? 1 : 2;
+        int studentFactor = (int) Math.pow($totalStudents.doubleValue() * multiplier, 2);
         scoreHolder.addSoftConstraintMatch(kcontext, -studentFactor);
 end
