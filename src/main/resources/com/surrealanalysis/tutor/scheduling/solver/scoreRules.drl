@@ -43,8 +43,8 @@ rule "Tutors should have at least 2 students"
     when
         $tutor: Tutor()
         Number(intValue < 2) from accumulate(
-            $assignment:TutoringSession(studentAssigned == true, $tutor == tutor),
-            count($assignment))
+            $session:TutoringSession(studentAssigned == true, $tutor == tutor),
+            count($session))
     then
         scoreHolder.addHardConstraintMatch(kcontext, -1);
 end
@@ -53,10 +53,28 @@ rule "Tutors should have a roughly equal number of students"
     when
         $tutor: Tutor($status: status)
         $totalStudents: Number(intValue > 0) from accumulate(
-            $assignment:TutoringSession(studentAssigned, $tutor == tutor),
-            count($assignment))
+            $session:TutoringSession(studentAssigned, $tutor == tutor),
+            count($session))
     then
         int multiplier = $status == EmploymentStatus.FULL_TIME ? 1 : 2;
-        int studentFactor = (int) Math.pow($totalStudents.doubleValue() * multiplier, 2);
+        int studentFactor = (int) Math.pow($totalStudents.intValue() * multiplier, 2);
         scoreHolder.addSoftConstraintMatch(kcontext, -studentFactor);
+end
+
+rule "Optimal Tutor score balance"
+    when
+        $tutorCountNumber: Number() from accumulate(
+            $tutor:Tutor(),
+            count($tutor))
+        $totalStudentNumber: Number() from accumulate(
+            $session:TutoringSession(studentAssigned),
+            count($session))
+    then
+        int tutorCount = $tutorCountNumber.intValue();
+        int totalStudents = $totalStudentNumber.intValue();
+        int quotient = totalStudents / tutorCount;
+        int remainder = totalStudents % tutorCount;
+        int quotientFactor = quotient * quotient * tutorCount;
+        int remainderFactor = remainder * quotient * (quotient + 1);
+        scoreHolder.addSoftConstraintMatch(kcontext, quotientFactor + remainderFactor);
 end

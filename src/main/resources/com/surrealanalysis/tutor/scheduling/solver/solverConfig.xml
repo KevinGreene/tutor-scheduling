@@ -11,9 +11,15 @@
 
     <termination>
         <!--<secondsSpentLimit>120</secondsSpentLimit>-->
-        <minutesSpentLimit>3</minutesSpentLimit>
+        <minutesSpentLimit>4</minutesSpentLimit>
     </termination>
     <constructionHeuristic/>
     <localSearch>
+        <acceptor>
+            <simulatedAnnealingStartingTemperature>2hard/100soft</simulatedAnnealingStartingTemperature>
+        </acceptor>
+        <forager>
+            <acceptedCountLimit>4</acceptedCountLimit>
+        </forager>
     </localSearch>
 </solver>

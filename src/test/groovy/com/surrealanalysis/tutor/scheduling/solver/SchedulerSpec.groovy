@@ -111,6 +111,10 @@ class SchedulerSpec extends Specification {
             }
         }
 
+        newSchedule.sessions.sort { it.hour.hour }.each {
+            println it
+        }
+
         then:
         newSchedule.score.isFeasible()
     }
