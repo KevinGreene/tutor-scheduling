@@ -1,13 +1,22 @@
 package com.surrealanalysis.tutor.scheduling.domain
 
-data class Tutor(val id: Int,
+abstract class ProblemFact {
+    abstract val id: Int
+    override fun equals(other: Any?): Boolean {
+        return other != null
+                && other is ProblemFact
+                && other.javaClass === this.javaClass
+                && other.id == id
+    }
+
+    override fun hashCode(): Int = id
+}
+
+data class Tutor(override val id: Int,
                  val name: String,
                  val specialties: List<Specialty>,
                  val status: EmploymentStatus,
-                 val preferredSessionSize: Int) {
-
-    override fun equals(other: Any?): Boolean = other is Tutor && other.id == id
-    override fun hashCode(): Int = id
+                 val preferredSessionSize: Int) : ProblemFact() {
 
     fun isFreeForHour(hour: Hour): Boolean {
         when (status) {
@@ -18,21 +27,14 @@ data class Tutor(val id: Int,
     }
 }
 
-data class Student(val id: Int,
+data class Student(override val id: Int,
                    val name: String,
                    val requiredSpecialties: List<Specialty>,
                    val preferredSpecialties: List<Specialty>,
-                   val preferredSessionSize: Int) {
-    override fun equals(other: Any?): Boolean = other is Student && other.id == id
-    override fun hashCode(): Int = id
-}
+                   val preferredSessionSize: Int) : ProblemFact()
 
 
-data class Specialty(val id: Int, val name: String) {
-    override fun equals(other: Any?): Boolean = other is Specialty && other.id == id
-    override fun hashCode(): Int = id
-}
-
+data class Specialty(override val id: Int, val name: String) : ProblemFact()
 
 data class Table(val id: Int)
 data class Hour(val hour: Int)
