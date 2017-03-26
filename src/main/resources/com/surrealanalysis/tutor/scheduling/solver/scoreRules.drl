@@ -31,7 +31,7 @@ rule "Students should only be scheduled for a single session"
         scoreHolder.addHardConstraintMatch(kcontext, -1);
 end
 
-rule "Students be scheduled for a session"
+rule "Students should be scheduled for a session"
     when
         $student: Student()
         not TutoringSession(student == $student)

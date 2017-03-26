@@ -27,26 +27,28 @@ class SchedulerRuleSpec extends Specification {
         def thirdHour = new Hour(3)
         def table = new Table(idCounter.id)
 
-        def tutorFullSession = new TutoringSession(id: idCounter.id, table: table, hour: firstHour, tutor: tutorFull)
-        def tutorOddSession = new TutoringSession(id: idCounter.id, table: table, hour: firstHour, tutor: tutorOdd)
-        def tutorEvenSession = new TutoringSession(id: idCounter.id, table: table, hour: firstHour, tutor: tutorEven)
-        def tutorSecondFullSession = new TutoringSession(id: idCounter.id, table: table, hour: secondHour, tutor: tutorFull)
-        def tutorSecondEvenSession = new TutoringSession(id: idCounter.id, table: table, hour: secondHour, tutor: tutorEven)
-        def tutorThirdEvenSession = new TutoringSession(id: idCounter.id, table: table, hour: thirdHour, tutor: tutorEven)
+        def sessions = [new TutoringSession(id: idCounter.id, table: table, hour: firstHour, tutor: tutorFull),
+                        new TutoringSession(id: idCounter.id, table: table, hour: firstHour, tutor: tutorOdd),
+                        new TutoringSession(id: idCounter.id, table: table, hour: firstHour, tutor: tutorEven),
+                        new TutoringSession(id: idCounter.id, table: table, hour: secondHour, tutor: tutorFull),
+                        new TutoringSession(id: idCounter.id, table: table, hour: secondHour, tutor: tutorEven),
+                        new TutoringSession(id: idCounter.id, table: table, hour: thirdHour, tutor: tutorEven),
+        ]
 
         when:
         Schedule schedule = new Schedule(
-                [tutorFull, tutorOdd, tutorEven],
-                [],
-                [tutorOddSession, tutorEvenSession, tutorFullSession, tutorSecondFullSession, tutorSecondEvenSession, tutorThirdEvenSession],
-                [firstHour],
-                [],
-                [table],
+                tutors: [tutorFull, tutorOdd, tutorEven],
+                students: [],
+                sessions: sessions,
+                hours: [firstHour],
+                specialties: [],
+                tables: [table],
         )
 
 
         then:
         scoreVerifier.assertHardWeight("Tutors should be free when scheduled", -2, schedule)
+
     }
 
     def "Tutors should only be scheduled for a single table"() {
@@ -56,17 +58,19 @@ class SchedulerRuleSpec extends Specification {
         def table2 = new Table(idCounter.id)
 
         def tutor = new Tutor(idCounter.id, "Test Tutor 1", [], EmploymentStatus.FULL_TIME, 1)
-        def table1Session = new TutoringSession(id: idCounter.id, table: table1, hour: hour, tutor: tutor)
-        def table2Session = new TutoringSession(id: idCounter.id, table: table2, hour: hour, tutor: tutor)
+        def sessions = [
+                new TutoringSession(id: idCounter.id, table: table1, hour: hour, tutor: tutor),
+                new TutoringSession(id: idCounter.id, table: table2, hour: hour, tutor: tutor),
+        ]
 
         when:
         Schedule schedule = new Schedule(
-                [tutor],
-                [],
-                [table1Session, table2Session],
-                [hour],
-                [],
-                [table1, table2],
+                tutors: [tutor],
+                students: [],
+                sessions: sessions,
+                hours: [hour],
+                specialties: [],
+                tables: [table1, table2],
         )
 
         then:
@@ -80,24 +84,26 @@ class SchedulerRuleSpec extends Specification {
         def table2 = new Table(idCounter.id)
 
         def student = new Student(idCounter.id, "Test Student 1", [], [], 1)
-        def table1Session = new TutoringSession(id: idCounter.id, table: table1, hour: hour, student: student)
-        def table2Session = new TutoringSession(id: idCounter.id, table: table2, hour: hour, student: student)
+        def sessions = [
+                new TutoringSession(id: idCounter.id, table: table1, hour: hour, student: student),
+                new TutoringSession(id: idCounter.id, table: table2, hour: hour, student: student)
+        ]
 
         when:
         Schedule schedule = new Schedule(
-                [],
-                [student],
-                [table1Session, table2Session],
-                [hour],
-                [],
-                [table1, table2],
+                tutors: [],
+                students: [student],
+                sessions: sessions,
+                hours: [hour],
+                specialties: [],
+                tables: [table1, table2],
         )
 
         then:
         scoreVerifier.assertHardWeight("Students should only be scheduled for a single session", -1, schedule)
     }
 
-    def "Students be scheduled for a session"() {
+    def "Students should be scheduled for a session"() {
         given:
         def hour = new Hour(1)
         def table1 = new Table(idCounter.id)
@@ -116,7 +122,7 @@ class SchedulerRuleSpec extends Specification {
         )
 
         then:
-        scoreVerifier.assertHardWeight("Students be scheduled for a session", -1, schedule)
+        scoreVerifier.assertHardWeight("Students should be scheduled for a session", -1, schedule)
     }
 
     def "Tutors should have at least 2 students"() {
@@ -132,18 +138,19 @@ class SchedulerRuleSpec extends Specification {
         def student1 = new Student(idCounter.id, "Test Student 1", [], [], 1)
         def student2 = new Student(idCounter.id, "Test Student 2", [], [], 1)
 
-        def tableSessions = []
-        tableSessions << new TutoringSession(id: idCounter.id, table: table1, hour: hour1, tutor: tutor1, student: student1)
-        tableSessions << new TutoringSession(id: idCounter.id, table: table1, hour: hour2, tutor: tutor1, student: student2)
-        tableSessions << new TutoringSession(id: idCounter.id, table: table2, hour: hour1, tutor: tutor2, student: student1)
-        tableSessions << new TutoringSession(id: idCounter.id, table: table2, hour: hour1, tutor: tutor2, student: student2)
-        tableSessions << new TutoringSession(id: idCounter.id, table: table2, hour: hour1, tutor: tutor3, student: student1)
+        def sessions = [
+                new TutoringSession(id: idCounter.id, table: table1, hour: hour1, tutor: tutor1, student: student1),
+                new TutoringSession(id: idCounter.id, table: table1, hour: hour2, tutor: tutor1, student: student2),
+                new TutoringSession(id: idCounter.id, table: table2, hour: hour1, tutor: tutor2, student: student1),
+                new TutoringSession(id: idCounter.id, table: table2, hour: hour1, tutor: tutor2, student: student2),
+                new TutoringSession(id: idCounter.id, table: table2, hour: hour1, tutor: tutor3, student: student1),
+        ]
 
         when:
         Schedule schedule = new Schedule(
                 tutors: [tutor1, tutor2, tutor3],
                 students: [student1, student2],
-                sessions: tableSessions,
+                sessions: sessions,
                 hours: [hour1, hour2],
                 specialties: [],
                 tables: [table1, table2],
