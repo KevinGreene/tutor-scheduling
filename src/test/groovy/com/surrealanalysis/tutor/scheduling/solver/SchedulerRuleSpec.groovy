@@ -24,19 +24,21 @@ class SchedulerRuleSpec extends Specification {
 
         def firstHour = new Hour(1)
         def secondHour = new Hour(2)
+        def thirdHour = new Hour(3)
         def table = new Table(idCounter.id)
 
         def tutorFullSession = new TutoringSession(id: idCounter.id, table: table, hour: firstHour, tutor: tutorFull)
         def tutorOddSession = new TutoringSession(id: idCounter.id, table: table, hour: firstHour, tutor: tutorOdd)
         def tutorEvenSession = new TutoringSession(id: idCounter.id, table: table, hour: firstHour, tutor: tutorEven)
-        def tutorSecondFullSession = new TutoringSession(id: idCounter.id, table: table, hour: firstHour, tutor: tutorFull)
-        def tutorSecondEvenSession = new TutoringSession(id: idCounter.id, table: table, hour: firstHour, tutor: tutorEven)
+        def tutorSecondFullSession = new TutoringSession(id: idCounter.id, table: table, hour: secondHour, tutor: tutorFull)
+        def tutorSecondEvenSession = new TutoringSession(id: idCounter.id, table: table, hour: secondHour, tutor: tutorEven)
+        def tutorThirdEvenSession = new TutoringSession(id: idCounter.id, table: table, hour: thirdHour, tutor: tutorEven)
 
         when:
         Schedule schedule = new Schedule(
                 [tutorFull, tutorOdd, tutorEven],
                 [],
-                [tutorOddSession, tutorEvenSession, tutorFullSession, tutorSecondFullSession, tutorSecondEvenSession],
+                [tutorOddSession, tutorEvenSession, tutorFullSession, tutorSecondFullSession, tutorSecondEvenSession, tutorThirdEvenSession],
                 [firstHour],
                 [],
                 [table],
@@ -44,7 +46,7 @@ class SchedulerRuleSpec extends Specification {
 
 
         then:
-        scoreVerifier.assertHardWeight("Tutors should be free when scheduled", -1, schedule)
+        scoreVerifier.assertHardWeight("Tutors should be free when scheduled", -2, schedule)
     }
 
     def "Tutors should only be scheduled for a single table"() {
