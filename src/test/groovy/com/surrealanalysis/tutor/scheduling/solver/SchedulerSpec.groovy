@@ -1,6 +1,7 @@
 package com.surrealanalysis.tutor.scheduling.solver
 
 import com.github.javafaker.Faker
+import com.surrealanalysis.tutor.scheduling.IdCounter
 import com.surrealanalysis.tutor.scheduling.domain.*
 import org.optaplanner.core.api.solver.SolverFactory
 import org.optaplanner.core.impl.score.director.ScoreDirector
@@ -13,7 +14,7 @@ class SchedulerSpec extends Specification {
 
     def setup() {
         faker = new Faker()
-        random = new Random();
+        random = new Random()
     }
 
     def makeTutor(int id, List<Specialty> specialties, EmploymentStatus status) {
